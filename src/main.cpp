@@ -4,7 +4,6 @@
 #include "rev_lights.h"
 #include "graphics.h"
 #include "gameDataInput.h"
-#include "gameDataContext.h"
 
 int compteur = 0;
 uint32_t ms = 0;
@@ -72,11 +71,16 @@ void loop() {
     EVE_end_cmd_burst();
 
     drawMainCommon();
-    drawMainData(gameContext.speed, gameContext.lap, gameContext.gear);
+    drawMainData(gameContext.speed, gameContext.lap, gameContext.gear, gameContext.delta, gameContext.brakeBias, gameContext.battery);
+
+    //Print FPS and delta between frames
     String refreshDelta = String(deltaTime) + " ms " + String(1000.0/(deltaTime)) + " fps";
     EVE_start_cmd_burst();
+    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst(EVE_HSIZE / 2, 15, 22, EVE_OPT_CENTER, refreshDelta.c_str());
     EVE_end_cmd_burst();
+
+
     switch(gameContext.flag){
       case 0:
           flag_lights(leds, CRGB(0, 0, 0));

@@ -27,8 +27,9 @@ void drawInitLogo();
 
 //Draw main page common elements
 void drawMainCommon();
-void drawMainData(int speed, int lap, int gear);
+void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery);
 void drawYellowFlag(bool flagBlink);
 void drawRedFlag(bool flagBlink);
+String secondsToTime(float seconds);
 
 #endif

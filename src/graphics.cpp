@@ -89,14 +89,36 @@ void drawMainCommon(){
 
     EVE_end_cmd_burst();
 }
-
-void drawMainData(int speed, int lap, int gear){
+void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+
+    //Speed
+    EVE_cmd_text_burst(0, 9, 20, EVE_OPT_CENTERY, "SPEED");
+    EVE_cmd_number_burst(50, 11, 24, EVE_OPT_CENTER, speed);
+
+    //Laps
+    EVE_cmd_text_burst(EVE_HSIZE -  2, 11, 20, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, "LAP");
+    EVE_cmd_number_burst(EVE_HSIZE -  45, 11, 24, EVE_OPT_CENTER, lap);
+
+    //Gear
     EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gear);
-    EVE_cmd_text_burst(EVE_HSIZE -  45, 11, 22, EVE_OPT_CENTER, "Lap");
-    EVE_cmd_number_burst(EVE_HSIZE -  2, 11, 22, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, lap);
-    EVE_cmd_number_burst(25, 11, 22, EVE_OPT_CENTER, speed);
+
+    //Delta
+    EVE_cmd_dl_burst(COLOR_RGB(200, 0, 200));
+    String deltaString = secondsToTime(deltaTime);
+    EVE_cmd_text_burst( 186 - 4, 54, 31, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, deltaString.c_str());
+
+    //Brake Bias
+    EVE_cmd_dl_burst(COLOR_RGB(150, 120, 10));
+    EVE_cmd_text_burst( EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, String(brakeBias).c_str());
+
+    //Battery
+    EVE_cmd_dl_burst(COLOR_RGB(0, 255, 0));
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, 30, EVE_OPT_CENTER, String(battery).c_str());
+    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    EVE_cmd_text_burst( 190, EVE_VSIZE - 100, 16, EVE_OPT_CENTERY, "BATT");
+
     EVE_end_cmd_burst();
 }
 
@@ -142,4 +164,28 @@ void drawRedFlag(bool flagBlink){
     }
     EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2, 31, EVE_OPT_CENTER, "Red Flag");
     EVE_end_cmd_burst();
+}
+
+void drawERSMode0(){
+
+}
+
+//This function convert a float delta time ( negative or positive ) to a string.
+String secondsToTime(float seconds){
+    String timeString = "";
+    int minutes = 0;
+    int secondsInt = 0;
+    int milliseconds = 0;
+    if(seconds < 0){
+        timeString += "-";
+        seconds *= -1;
+    }
+    else{
+        timeString += "+";
+    }
+    minutes = seconds / 60;
+    secondsInt = seconds - (minutes * 60);
+    milliseconds = (seconds - (int)seconds) * 1000;
+    timeString += String(secondsInt) + "." + String(milliseconds);
+    return timeString;
 }
