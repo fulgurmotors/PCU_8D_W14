@@ -1,0 +1,35 @@
+Date : 2023-12-12 13:16:03
+Directory : /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/include
+Total : 8 files,  -216 codes, -46 comments, -39 blanks, all -301 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C++      |          8 |       -216 |        -46 |        -39 |       -301 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |          8 |       -216 |        -46 |        -39 |       -301 |
+| . (Files)                                                                           |          4 |         61 |          5 |         25 |         91 |
+| ..                                                                                  |          4 |       -277 |        -51 |        -64 |       -392 |
+| ../src                                                                              |          4 |       -277 |        -51 |        -64 |       -392 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                            | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/include/gameDataContext.h | C++      |         12 |          0 |          5 |         17 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/include/gameDataInput.h   | C++      |         10 |          0 |          5 |         15 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/include/graphics.h        | C++      |         19 |          2 |          6 |         27 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/include/rev_lights.h      | C++      |         20 |          3 |          9 |         32 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/src/gameDataInput.cpp     | C++      |        -58 |        -15 |        -11 |        -84 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/src/graphics.cpp          | C++      |        -55 |         -9 |        -21 |        -85 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/src/main.cpp              | C++      |        -80 |        -27 |        -23 |       -130 |
+| /Users/gauthierbaron/Documents/PlatformIO/Projects/PCU_8D/src/rev_lights.cpp        | C++      |        -84 |          0 |         -9 |        -93 |
+| Total                                                                               |          |       -216 |        -46 |        -39 |       -301 |
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
