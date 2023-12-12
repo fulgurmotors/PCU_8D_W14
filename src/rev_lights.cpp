@@ -72,13 +72,6 @@ void rev_lights_rpm(CRGB* leds, int gear, int rpm){
 
   int r = map(rpm, min, max, 0, 15);
 
-  Serial.print("Max :");
-  Serial.println(max);
-  Serial.print("Min :");
-  Serial.println(min);
-  Serial.print("Rpm :");
-  Serial.println(rpm);
-
   turn_on_rev_lights(leds, r);
 }
 

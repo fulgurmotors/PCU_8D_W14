@@ -12,7 +12,7 @@ uint32_t msRefreshDisplay = 0;
 
 CRGB leds[NUM_LEDS];
 
-bool yellow = false;
+bool flagBlink = false;
 
 gameDataContext_t gameContext;
 
@@ -43,31 +43,6 @@ void setup() {
 
   if(E_OK == EVE_init()){ /* make sure the init finished correctly */
     Serial.println("EVE init successfull");
-
-    /*
-    //EVE_memWrite_flash_buffer(0x800000, ptr, 1024);
-
-    EVE_cmd_flashread(0x000000, 0x000000, 4096);
-
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(CMD_DLSTART);
-    EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
-    EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
-    EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
-    EVE_end_cmd_burst();
-
-    EVE_cmd_dl( BITMAP_SOURCE(0x000000) );
-    EVE_cmd_dl( BITMAP_LAYOUT(EVE_PALETTED, 128, 32) );
-    EVE_cmd_dl( BITMAP_SIZE(EVE_NEAREST, EVE_BORDER, EVE_BORDER,32, 32) );
-    EVE_cmd_dl( DL_BEGIN | EVE_BITMAPS );
-    EVE_cmd_dl( VERTEX2F(0, 0) );
-    EVE_cmd_dl( DL_END );
-
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(DL_DISPLAY); 
-    EVE_cmd_dl_burst(CMD_SWAP);
-    EVE_end_cmd_burst();
-    */
   }
   else{
     Serial.println("EVE init failed");
@@ -86,21 +61,6 @@ void loop() {
     rev_lights_rpm(leds, gameContext.gear, gameContext.rpm);
   } 
 
-
-  if(millis() > ms + 1000){
-    ms = millis();
-    if(yellow){
-      yellow = false;
-      flag_lights(leds, yellow_flag_light);
-    }
-    else{
-      yellow = true;
-      flag_lights(leds, CRGB(0, 0, 0));
-    }
-    FastLED.show();
-  }
-
-  FastLED.show();
   if(millis() > msRefreshDisplay + REFRESH_RATE_MS){
     int deltaTime = millis() - msRefreshDisplay;
     msRefreshDisplay = millis();
@@ -119,12 +79,38 @@ void loop() {
     EVE_end_cmd_burst();
     switch(gameContext.flag){
       case 0:
+          flag_lights(leds, CRGB(0, 0, 0));
+          FastLED.show();
         break;
       case 1:
-        drawYellowFlag();
+        if(millis() > ms + 1000){
+          ms = millis();
+          if(flagBlink){
+            flagBlink = false;
+            flag_lights(leds, yellow_flag_light);
+          }
+          else{
+            flagBlink = true;
+            flag_lights(leds, CRGB(0, 0, 0));
+          }
+          FastLED.show();
+        }
+        drawYellowFlag(flagBlink);
         break;
       case 2:
-        drawRedFlag();
+        if(millis() > ms + 1000){
+          ms = millis();
+          if(flagBlink){
+            flagBlink = false;
+            flag_lights(leds, red_flag_light);
+          }
+          else{
+            flagBlink = true;
+            flag_lights(leds, CRGB(0, 0, 0));
+          }
+          FastLED.show();
+        }
+        drawRedFlag(flagBlink);
         break;
     }
     EVE_start_cmd_burst();

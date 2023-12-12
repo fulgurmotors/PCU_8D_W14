@@ -4,6 +4,33 @@
 //Independantly of the ERS mode.
 //This has nothing to do with the rev lights or the flag lights.
 
+/*
+void drawInitLogo(){
+    //EVE_memWrite_flash_buffer(0x800000, ptr, 1024);
+
+    EVE_cmd_flashread(0x000000, 0x000000, 4096);
+
+    EVE_start_cmd_burst();
+    EVE_cmd_dl_burst(CMD_DLSTART);
+    EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
+    EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
+    EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
+    EVE_end_cmd_burst();
+
+    EVE_cmd_dl( BITMAP_SOURCE(0x000000) );
+    EVE_cmd_dl( BITMAP_LAYOUT(EVE_PALETTED, 128, 32) );
+    EVE_cmd_dl( BITMAP_SIZE(EVE_NEAREST, EVE_BORDER, EVE_BORDER,32, 32) );
+    EVE_cmd_dl( DL_BEGIN | EVE_BITMAPS );
+    EVE_cmd_dl( VERTEX2F(0, 0) );
+    EVE_cmd_dl( DL_END );
+
+    EVE_start_cmd_burst();
+    EVE_cmd_dl_burst(DL_DISPLAY); 
+    EVE_cmd_dl_burst(CMD_SWAP);
+    EVE_end_cmd_burst();
+}
+*/
+
 void drawMainCommon(){
     EVE_start_cmd_burst();
     
@@ -66,32 +93,52 @@ void drawMainData(int speed, int lap, int gear){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gear);
-    EVE_cmd_text_burst(EVE_HSIZE -  40, 11, 22, EVE_OPT_CENTER, "Lap");
+    EVE_cmd_text_burst(EVE_HSIZE -  45, 11, 22, EVE_OPT_CENTER, "Lap");
     EVE_cmd_number_burst(EVE_HSIZE -  2, 11, 22, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, lap);
     EVE_cmd_number_burst(25, 11, 22, EVE_OPT_CENTER, speed);
     EVE_end_cmd_burst();
 }
 
-void drawYellowFlag(){
+void drawYellowFlag(bool flagBlink){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
-    EVE_cmd_dl_burst(COLOR_RGB(200, 180, 0));
+    if(flagBlink){
+        EVE_cmd_dl_burst(COLOR_RGB(200, 180, 0));
+    }
+    else{
+        EVE_cmd_dl_burst(COLOR_RGB(0, 0, 0));
+    }
     EVE_cmd_dl_burst(VERTEX2F(0, 0));
     EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE, EVE_VSIZE));
     EVE_cmd_dl_burst(DL_END);
-    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+     if(flagBlink){
+        EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    }
+    else{
+        EVE_cmd_dl_burst(COLOR_RGB(200, 180, 0));
+    }
     EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2, 31, EVE_OPT_CENTER, "Yellow Flag");
     EVE_end_cmd_burst();
 }
 
-void drawRedFlag(){
+void drawRedFlag(bool flagBlink){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
-    EVE_cmd_dl_burst(COLOR_RGB(255, 0, 0));
+    if(flagBlink){
+        EVE_cmd_dl_burst(COLOR_RGB(200, 0, 0));
+    }
+    else{
+        EVE_cmd_dl_burst(COLOR_RGB(0, 0, 0));
+    }
     EVE_cmd_dl_burst(VERTEX2F(0, 0));
     EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE, EVE_VSIZE));
     EVE_cmd_dl_burst(DL_END);
-    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2, 31, EVE_OPT_CENTER, "Yellow Flag");
+    if(flagBlink){
+        EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    }
+    else{
+        EVE_cmd_dl_burst(COLOR_RGB(200, 0, 0));
+    }
+    EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2, 31, EVE_OPT_CENTER, "Red Flag");
     EVE_end_cmd_burst();
 }

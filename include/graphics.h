@@ -23,9 +23,10 @@
 #include <Arduino.h>
 #include "EVE.h"
 
+void drawInitLogo();
 void drawMainCommon();
 void drawMainData(int speed, int lap, int gear);
-void drawYellowFlag();
-void drawRedFlag();
+void drawYellowFlag(bool flagBlink);
+void drawRedFlag(bool flagBlink);
 
 #endif
