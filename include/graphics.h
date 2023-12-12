@@ -24,6 +24,8 @@
 #include "EVE.h"
 
 void drawInitLogo();
+
+//Draw main page common elements
 void drawMainCommon();
 void drawMainData(int speed, int lap, int gear);
 void drawYellowFlag(bool flagBlink);

@@ -31,6 +31,7 @@ void drawInitLogo(){
 }
 */
 
+//Draw main page common elements
 void drawMainCommon(){
     EVE_start_cmd_burst();
     
