@@ -56,7 +56,7 @@ void parseReceivedData(char* tempChars, gameDataContext_p gameData){
         gameData->delta = atof(dataValue);
     }
     else if(!strcmp(dataCodeString.c_str(), GEAR_CODE)){
-        gameData->gear = atoi(dataValue);
+        gameData->gear = dataValue[0];
     }
     else if(!strcmp(dataCodeString.c_str(), FLAG_CODE)){
         gameData->flag = atoi(dataValue);
@@ -100,14 +100,17 @@ void parseReceivedData(char* tempChars, gameDataContext_p gameData){
     else if(!strcmp(dataCodeString.c_str(), ERS_LEVEL_CODE)){
         gameData->ERSLevel = atof(dataValue);
     }
-    else if(!strcmp(dataCodeString.c_str(), FUEL_PER_LAP_CODE)){
-        gameData->fuelPerLap = atof(dataValue);
+    else if(!strcmp(dataCodeString.c_str(), LAST_LAP_FUEL_CODE)){
+        gameData->lastLapFuel = atof(dataValue);
     }
     else if(!strcmp(dataCodeString.c_str(), ESTIMATED_LAP_TIME_CODE)){
         gameData->EstimatedLapTime = atof(dataValue);
     }
     else if(!strcmp(dataCodeString.c_str(), BATTERY_CODE)){
         gameData->battery = atoi(dataValue);
+    }
+    else if(!strcmp(dataCodeString.c_str(), LAST_LAP_TIME_CODE)){
+        gameData->lastLapTime = atof(dataValue);
     }
     else{
         Serial.println("Unknown data code");

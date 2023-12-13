@@ -27,17 +27,19 @@
 #define BRAKE_BIAS_CODE "BRB"
 #define ERS_MODE_CODE "ERM"
 #define ERS_LEVEL_CODE "ERL"
-#define FUEL_PER_LAP_CODE "FPL"
+#define LAST_LAP_FUEL_CODE "LLF"
 #define BATTERY_CODE "BAT"
+#define LAST_LAP_TIME_CODE "LLT"
 
 typedef struct{
     int speed;
-    int gear;
+    char gear;
     int rpm;
     int lap;
 
     float delta; //Delta time
     float EstimatedLapTime; //Estimated lap time
+    float lastLapTime; //Last lap time
 
     int flag; //0 = green, 1 = yellow, 2 = red
 
@@ -60,7 +62,7 @@ typedef struct{
     int ERSMode;
     float ERSLevel;
 
-    float fuelPerLap;
+    float lastLapFuel;
 
     int battery;
 

@@ -89,13 +89,13 @@ void drawMainCommon(){
 
     EVE_end_cmd_burst();
 }
-void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery){
+void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery, float lastLapFuel, float lastLapTime){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
 
     //Speed
     EVE_cmd_text_burst(0, 9, 20, EVE_OPT_CENTERY, "SPEED");
-    EVE_cmd_number_burst(50, 11, 24, EVE_OPT_CENTER, speed);
+    EVE_cmd_number_burst(60, 11, 24, EVE_OPT_CENTER, speed);
 
     //Laps
     EVE_cmd_text_burst(EVE_HSIZE -  2, 11, 20, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, "LAP");
@@ -111,13 +111,25 @@ void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias
 
     //Brake Bias
     EVE_cmd_dl_burst(COLOR_RGB(150, 120, 10));
-    EVE_cmd_text_burst( EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, String(brakeBias).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, String(brakeBias).substring(0, String(brakeBias).indexOf('.') + 2).c_str());
 
     //Battery
     EVE_cmd_dl_burst(COLOR_RGB(0, 255, 0));
     EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, 30, EVE_OPT_CENTER, String(battery).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( 190, EVE_VSIZE - 100, 16, EVE_OPT_CENTERY, "BATT");
+
+    //Last Lap Fuel
+    EVE_cmd_dl_burst(COLOR_RGB(255, 0, 0));
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 54, 30, EVE_OPT_CENTER, String(lastLapFuel).c_str());
+    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    EVE_cmd_text_burst( 190, EVE_VSIZE - 64, 16, EVE_OPT_CENTERY, "LL");
+
+    //Last Lap Time
+    EVE_cmd_dl_burst(COLOR_RGB(10, 200, 200));
+    EVE_cmd_text_burst( EVE_HSIZE - 104, EVE_VSIZE - 30, 30, EVE_OPT_CENTER, String(lastLapTime).c_str());
+    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    EVE_cmd_text_burst( EVE_HSIZE - 186 + 2, EVE_VSIZE - 61 + 8, 16, EVE_OPT_CENTERY, "LAST LAP");
 
     EVE_end_cmd_burst();
 }
@@ -126,7 +138,7 @@ void drawYellowFlag(bool flagBlink){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
     if(flagBlink){
-        EVE_cmd_dl_burst(COLOR_RGB(200, 180, 0));
+        EVE_cmd_dl_burst(COLOR_RGB(250, 180, 0));
     }
     else{
         EVE_cmd_dl_burst(COLOR_RGB(0, 0, 0));
@@ -138,7 +150,7 @@ void drawYellowFlag(bool flagBlink){
         EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     }
     else{
-        EVE_cmd_dl_burst(COLOR_RGB(200, 180, 0));
+        EVE_cmd_dl_burst(COLOR_RGB(250, 180, 0));
     }
     EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2, 31, EVE_OPT_CENTER, "Yellow Flag");
     EVE_end_cmd_burst();

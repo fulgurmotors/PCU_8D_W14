@@ -23,7 +23,7 @@ char tempChars[BUFFER_SIZE];
 
 void setup() {
 
-  gameContext = {0, 0, 0, 0, 0.0};
+  gameContext = {0};
 
   //Serial initialization
   Serial.begin(115200);
@@ -61,7 +61,7 @@ void loop() {
   } 
 
   if(millis() > msRefreshDisplay + REFRESH_RATE_MS){
-    int deltaTime = millis() - msRefreshDisplay;
+    //int deltaTime = millis() - msRefreshDisplay;
     msRefreshDisplay = millis();
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(CMD_DLSTART); /* instruct the co-processor to start a new display list */
@@ -71,15 +71,16 @@ void loop() {
     EVE_end_cmd_burst();
 
     drawMainCommon();
-    drawMainData(gameContext.speed, gameContext.lap, gameContext.gear, gameContext.delta, gameContext.brakeBias, gameContext.battery);
+    drawMainData(gameContext.speed, gameContext.lap, gameContext.gear, gameContext.delta, gameContext.brakeBias, gameContext.battery, gameContext.lastLapFuel, gameContext.lastLapTime);
 
     //Print FPS and delta between frames
+    /*
     String refreshDelta = String(deltaTime) + " ms " + String(1000.0/(deltaTime)) + " fps";
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst(EVE_HSIZE / 2, 15, 22, EVE_OPT_CENTER, refreshDelta.c_str());
     EVE_end_cmd_burst();
-
+    */
 
     switch(gameContext.flag){
       case 0:
