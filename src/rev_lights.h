@@ -16,7 +16,7 @@
 #define FLAG_LIGHT_LEFT_START 0
 #define FLAG_LIGHT_RIGHT_START 18
 
-#define led_brightness 255
+#define led_brightness 32
 #define led_saturation 255
 
 #define red_rev_light CHSV(0, led_saturation, led_brightness)

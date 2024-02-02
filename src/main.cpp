@@ -58,9 +58,11 @@ void loop() {
     parseReceivedData(tempChars, &gameContext);
     newData = false;
     rev_lights_rpm(leds, gameContext.gear, gameContext.rpm);
-  } 
+  }
 
   if(millis() > msRefreshDisplay + REFRESH_RATE_MS){
+    //gameContext.lap++;
+    if(gameContext.lap > 100) gameContext.lap = 0;
     //int deltaTime = millis() - msRefreshDisplay;
     msRefreshDisplay = millis();
     EVE_start_cmd_burst();
@@ -83,6 +85,7 @@ void loop() {
     */
 
     switch(gameContext.flag){
+
       case 0:
           flag_lights(leds, CRGB(0, 0, 0));
           FastLED.show();
