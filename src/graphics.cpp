@@ -31,6 +31,16 @@ void drawInitLogo(){
 }
 */
 
+//Clear the screen and start a new display list
+void initRefreshDisplay(){
+    EVE_start_cmd_burst();
+    EVE_cmd_dl_burst(CMD_DLSTART); // Instruct the co-processor to start a new display list
+    EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK); // Set the default clear color to black
+    EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG); // Clear the screen - this and the previous prevent artifacts between lists, Attributes are the color, stencil and tag buffers
+    EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
+    EVE_end_cmd_burst();
+}
+
 //Draw main page common elements
 void drawMainCommon(){
     EVE_start_cmd_burst();
@@ -89,51 +99,54 @@ void drawMainCommon(){
 
     EVE_end_cmd_burst();
 }
-void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery, float lastLapFuel, float lastLapTime){
+
+//Draw the main data of the screen
+void drawMainData(gameDataContext_t gameContext){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
 
     //Speed
     EVE_cmd_text_burst(0, 9, 20, EVE_OPT_CENTERY, "SPEED");
-    EVE_cmd_number_burst(60, 11, 24, EVE_OPT_CENTER, speed);
+    EVE_cmd_number_burst(60, 11, 24, EVE_OPT_CENTER, gameContext.speed);
 
     //Laps
     EVE_cmd_text_burst(EVE_HSIZE -  2, 11, 20, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, "LAP");
-    EVE_cmd_number_burst(EVE_HSIZE -  45, 11, 24, EVE_OPT_CENTER, lap);
+    EVE_cmd_number_burst(EVE_HSIZE -  45, 11, 24, EVE_OPT_CENTER, gameContext.lap);
 
     //Gear
-    EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gear);
+    EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gameContext.gear);
 
     //Delta
     EVE_cmd_dl_burst(COLOR_RGB(200, 0, 200));
-    String deltaString = secondsToTime(deltaTime);
+    String deltaString = secondsToTime(gameContext.delta);
     EVE_cmd_text_burst( 186 - 4, 54, 31, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, deltaString.c_str());
 
     //Brake Bias
     EVE_cmd_dl_burst(COLOR_RGB(150, 120, 10));
-    EVE_cmd_text_burst( EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, String(brakeBias).substring(0, String(brakeBias).indexOf('.') + 2).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, String(gameContext.brakeBias).substring(0, String(gameContext.brakeBias).indexOf('.') + 2).c_str());
 
     //Battery
     EVE_cmd_dl_burst(COLOR_RGB(0, 255, 0));
-    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, 30, EVE_OPT_CENTER, String(battery).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, 30, EVE_OPT_CENTER, String(gameContext.battery).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( 190, EVE_VSIZE - 100, 16, EVE_OPT_CENTERY, "BATT");
 
     //Last Lap Fuel
     EVE_cmd_dl_burst(COLOR_RGB(255, 0, 0));
-    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 54, 30, EVE_OPT_CENTER, String(lastLapFuel).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 54, 30, EVE_OPT_CENTER, String(gameContext.lastLapFuel).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( 190, EVE_VSIZE - 64, 16, EVE_OPT_CENTERY, "LL");
 
     //Last Lap Time
     EVE_cmd_dl_burst(COLOR_RGB(10, 200, 200));
-    EVE_cmd_text_burst( EVE_HSIZE - 104, EVE_VSIZE - 30, 30, EVE_OPT_CENTER, String(lastLapTime).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 104, EVE_VSIZE - 30, 30, EVE_OPT_CENTER, String(gameContext.lastLapTime).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( EVE_HSIZE - 186 + 2, EVE_VSIZE - 61 + 8, 16, EVE_OPT_CENTERY, "LAST LAP");
 
     EVE_end_cmd_burst();
 }
 
+//Draw the yellow flag
 void drawYellowFlag(bool flagBlink){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
@@ -156,6 +169,7 @@ void drawYellowFlag(bool flagBlink){
     EVE_end_cmd_burst();
 }
 
+//Draw the red flag
 void drawRedFlag(bool flagBlink){
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
@@ -178,8 +192,18 @@ void drawRedFlag(bool flagBlink){
     EVE_end_cmd_burst();
 }
 
+//Draw the ERS mode 0
 void drawERSMode0(){
 
+}
+
+//Draw the FPS and the delta time between frames
+void drawFPS(uint32_t deltaTime){
+    String refreshDelta = String(deltaTime) + " ms " + String(1000.0/(deltaTime)) + " fps";
+    EVE_start_cmd_burst();
+    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+    EVE_cmd_text_burst(EVE_HSIZE / 2, 15, 22, EVE_OPT_CENTER, refreshDelta.c_str());
+    EVE_end_cmd_burst();
 }
 
 //This function convert a float delta time ( negative or positive ) to a string.

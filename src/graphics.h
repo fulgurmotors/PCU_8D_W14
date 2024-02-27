@@ -22,14 +22,29 @@
 
 #include <Arduino.h>
 #include "EVE.h"
+#include "gameDataInput.h"
 
-void drawInitLogo();
+//void drawInitLogo();
+
+//Clear the screen and start a new display list
+void initRefreshDisplay();
 
 //Draw main page common elements
 void drawMainCommon();
-void drawMainData(int speed, int lap, int gear, float deltaTime, float brakeBias, int battery, float lastLapFuel, float lastLapTime);
+
+//Draw main page data
+void drawMainData(gameDataContext_t gameContext);
+
+//Draw the yellow flag
 void drawYellowFlag(bool flagBlink);
+
+//Draw the red flag
 void drawRedFlag(bool flagBlink);
+
+//Draw FPS and delta between frames
+void drawFPS(uint32_t deltaTime);
+
+//Convert seconds to time
 String secondsToTime(float seconds);
 
 #endif

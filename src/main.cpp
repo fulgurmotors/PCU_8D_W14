@@ -23,35 +23,35 @@ char tempChars[BUFFER_SIZE];
 
 void setup() {
 
-  gameContext = {0};
+  gameContext = {0}; //Game context initialization
 
-  //Serial initialization
-  Serial.begin(115200);
+  Serial.begin(115200); //Serial initialization
+  
+  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS); //LED initialization
 
-  //LED initialization
-  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
-
-  //Display initialization
+  //Display wiring initialization
   pinMode(EVE_CS, OUTPUT);
   digitalWrite(EVE_CS, HIGH);
   pinMode(EVE_PDN, OUTPUT);
   digitalWrite(EVE_PDN, LOW);
 
-  SPI.begin(); /* sets up the SPI to run in Mode 0 and 1 MHz */
+  SPI.begin(); //Sets up the SPI to run in Mode 0 and 1 MHz
   SPI.beginTransaction(SPISettings(8UL * 1000000UL, MSBFIRST, SPI_MODE0));
 
-  if(E_OK == EVE_init()){ /* make sure the init finished correctly */
+  //Make sure the display is correctly initialized
+  if(E_OK == EVE_init()){ 
     Serial.println("EVE init successfull");
+    delay(20);
   }
   else{
     Serial.println("EVE init failed");
     while(1);
   }
-  delay(20);
 }
 
 void loop() {
 
+  //Serial communication with the game
   recvWithStartEndMarkers(receivedChars, &newData);
   if (newData == true) {
     strcpy(tempChars, receivedChars);
@@ -60,37 +60,29 @@ void loop() {
     rev_lights_rpm(leds, gameContext.gear, gameContext.rpm);
   }
 
+  //Display refresh
   if(millis() > msRefreshDisplay + REFRESH_RATE_MS){
-    //gameContext.lap++;
-    if(gameContext.lap > 100) gameContext.lap = 0;
-    //int deltaTime = millis() - msRefreshDisplay;
-    msRefreshDisplay = millis();
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(CMD_DLSTART); /* instruct the co-processor to start a new display list */
-    EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK); /* set the default clear color to white */
-    EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG); /* clear the screen - this and the previous prevent artifacts between lists, Attributes are the color, stencil and tag buffers */
-    EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
-    EVE_end_cmd_burst();
-
-    drawMainCommon();
-    drawMainData(gameContext.speed, gameContext.lap, gameContext.gear, gameContext.delta, gameContext.brakeBias, gameContext.battery, gameContext.lastLapFuel, gameContext.lastLapTime);
-
-    //Print FPS and delta between frames
+    
     /*
-    String refreshDelta = String(deltaTime) + " ms " + String(1000.0/(deltaTime)) + " fps";
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_text_burst(EVE_HSIZE / 2, 15, 22, EVE_OPT_CENTER, refreshDelta.c_str());
-    EVE_end_cmd_burst();
+    //Print FPS and delta between frames
+    uint32_t deltaTime = millis() - msRefreshDisplay;
+    drawFPS(deltaTime);
     */
+
+    msRefreshDisplay = millis(); //Refresh time update
+    
+    initRefreshDisplay(); //Display cleaning and new display list
+
+    drawMainCommon(); //Draw common elements
+    drawMainData(gameContext); //Draw common data
 
     switch(gameContext.flag){
 
-      case 0:
+      case 0: //No flag
           flag_lights(leds, CRGB(0, 0, 0));
           FastLED.show();
         break;
-      case 1:
+      case 1: //Yellow flag
         if(millis() > ms + 1000){
           ms = millis();
           if(flagBlink){
@@ -105,7 +97,7 @@ void loop() {
         }
         drawYellowFlag(flagBlink);
         break;
-      case 2:
+      case 2: //Red flag
         if(millis() > ms + 1000){
           ms = millis();
           if(flagBlink){
@@ -121,9 +113,10 @@ void loop() {
         drawRedFlag(flagBlink);
         break;
     }
+    
     EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(DL_DISPLAY); /* mark the end of the display-list */
-    EVE_cmd_dl_burst(CMD_SWAP); /* make this list active */
+    EVE_cmd_dl_burst(DL_DISPLAY); //Mark the end of the display-list
+    EVE_cmd_dl_burst(CMD_SWAP); //Make this list active
     EVE_end_cmd_burst();
   }
 }
