@@ -30,6 +30,7 @@
 #define LAST_LAP_FUEL_CODE "LLF"
 #define BATTERY_CODE "BAT"
 #define LAST_LAP_TIME_CODE "LLT"
+#define FUEL_TARGET_CODE "FTG"
 
 typedef struct{
     int speed;
@@ -65,6 +66,8 @@ typedef struct{
     float lastLapFuel;
 
     int battery;
+
+    float fuelTarget;
 
 } gameDataContext_t;
 

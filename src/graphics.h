@@ -41,10 +41,16 @@ void drawYellowFlag(bool flagBlink);
 //Draw the red flag
 void drawRedFlag(bool flagBlink);
 
+//Draw the ERS mode
+void drawERSMode(gameDataContext_t gameContext);
+
 //Draw FPS and delta between frames
 void drawFPS(uint32_t deltaTime);
 
 //Convert seconds to time
 String secondsToTime(float seconds);
+
+//Return text associated with ERS mode
+String ERSModeText(int ERSMode);
 
 #endif

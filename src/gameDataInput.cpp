@@ -112,6 +112,12 @@ void parseReceivedData(char* tempChars, gameDataContext_p gameData){
     else if(!strcmp(dataCodeString.c_str(), LAST_LAP_TIME_CODE)){
         gameData->lastLapTime = atof(dataValue);
     }
+    else if(!strcmp(dataCodeString.c_str(), LAST_LAP_TIME_CODE)){
+        gameData->lastLapTime = atof(dataValue);
+    }
+    else if(!strcmp(dataCodeString.c_str(), FUEL_TARGET_CODE)){
+        gameData->fuelTarget = atof(dataValue);
+    }
     else{
         Serial.println("Unknown data code");
     }
