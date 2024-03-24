@@ -34,7 +34,7 @@
 
 typedef struct gameDataContext_t{
     int speed;
-    char gear;
+    int gear;
     int rpm;
     int lap;
 

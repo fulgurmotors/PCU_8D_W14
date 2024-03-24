@@ -128,7 +128,17 @@ void drawMainData(gameDataContext_t gameContext){
     EVE_cmd_number_burst(EVE_HSIZE -  45, 11, 24, EVE_OPT_CENTER, gameContext.lap);
 
     //Gear
-    EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gameContext.gear);
+    switch(gameContext.gear){
+        case 0:
+            EVE_cmd_text_burst(EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, "N");
+            break;
+        case -1:
+            EVE_cmd_text_burst(EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, "R");
+            break;
+        default:
+            EVE_cmd_number_burst( EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, gameContext.gear);
+            break;
+    }
 
     //Delta
     EVE_cmd_dl_burst(DELTA_COLOR);

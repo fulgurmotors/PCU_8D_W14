@@ -54,7 +54,15 @@ void parseReceivedData(char* tempChars, gameDataContext_p gameData){
         gameData->delta = strtof(dataValue, NULL);
     }
     else if(dataCodeString == GEAR_CODE){
-        gameData->gear = dataValue[0];
+        if(dataValue[0] != 'N' && dataValue[0] != 'R'){
+            gameData->gear = strtol(dataValue, NULL, 10);
+        }
+        else if(dataValue[0] == 'N'){
+            gameData->gear = 0;
+        }
+        else if(dataValue[0] == 'R'){
+            gameData->gear = -1;
+        }
     }
     else if(dataCodeString == FLAG_CODE){
         gameData->flag = strtol(dataValue, NULL, 10);
