@@ -1,4 +1,5 @@
 #include "rev_lights.h"
+#include <array>
 
 CRGB rev_lights_color[NUM_LEDS] = {red_rev_light,
                                    red_rev_light,
@@ -31,48 +32,19 @@ void turn_on_rev_lights(CRGB* leds, int nbr){
     FastLED.show();
 }
 
-void rev_lights_rpm(CRGB* leds, int gear, int rpm){
-  int max = 0;
-  int min = 0;
+int rev_lights_rpm(CRGB* leds, int gear, int rpm){
+  std::array<int, 2> rev_lights_rpm[8] = {{0, 12000}, {0, 12000}, {0, 12000}, {0, 12000}, {0, 12000}, {0, 12000}, {0, 12000}, {0, 12000}};
 
-  switch(gear){
-    case 0:
-      min = 0;
-      max = 12000;
-      break;
-    case 1:
-      min = 0;
-      max = 12000;
-      break;
-    case 2:
-      min = 0;
-      max = 12000;
-      break;
-    case 3:
-      min = 0;
-      max = 12000;
-      break;
-    case 4:
-      min = 0;
-      max = 12000;
-      break;
-    case 5:
-      min = 0;
-      max = 12000;
-      break;
-    case 6:
-      min = 0;
-      max = 12000;
-      break;
-    case 7:
-      min = 0;
-      max = 12000;
-      break;
+  if(gear >= 0 && gear <= 7){
+    int r = map(rpm, rev_lights_rpm[gear][0], rev_lights_rpm[gear][1], 0, 15);
+    turn_on_rev_lights(leds, r);
+    return 0;
+  }
+  else if (gear == -1){
+    return 0;
   }
 
-  int r = map(rpm, min, max, 0, 15);
-
-  turn_on_rev_lights(leds, r);
+  return -1;
 }
 
 void flag_lights(CRGB* leds, CRGB color){

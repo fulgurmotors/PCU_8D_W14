@@ -25,9 +25,8 @@
 #define yellow_flag_light CHSV(20, led_saturation, led_brightness)
 #define red_flag_light CHSV(0, led_saturation, led_brightness)
 
-
 void turn_on_rev_lights(CRGB* leds, int nbr);
 void flag_lights(CRGB* leds, CRGB color);
-void rev_lights_rpm(CRGB* leds, int gear, int rpm);
+int rev_lights_rpm(CRGB* leds, int gear, int rpm);
 
 #endif
