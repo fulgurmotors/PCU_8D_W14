@@ -32,7 +32,7 @@
 #define LAST_LAP_TIME_CODE "LLT"
 #define FUEL_TARGET_CODE "FTG"
 
-typedef struct{
+typedef struct gameDataContext_t{
     int speed;
     char gear;
     int rpm;
