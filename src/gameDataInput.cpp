@@ -121,7 +121,7 @@ void parseReceivedData(char* tempChars, gameDataContext_p gameData){
     else if(dataCodeString == LAST_LAP_TIME_CODE){
         gameData->lastLapTime = strtof(dataValue, NULL);
     }
-    else if(FUEL_TARGET_CODE){
+    else if(dataCodeString == FUEL_TARGET_CODE){
         gameData->fuelTarget = strtof(dataValue, NULL);
     }
     else{

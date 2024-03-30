@@ -75,7 +75,8 @@ void loop() {
 
     drawMainCommon(); //Draw common elements
     drawMainData(gameContext); //Draw common data
-
+    drawERSMode(gameContext); //Draw ERS mode
+    
     switch(gameContext.flag){
 
       case 0: //No flag
