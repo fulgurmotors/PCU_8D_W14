@@ -114,12 +114,12 @@ void drawMainData(gameDataContext_t gameContext){
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
 
     //Speed
-    EVE_cmd_text_burst(0, 9, 20, EVE_OPT_CENTERY, "SPEED");
+    EVE_cmd_text_burst(0, 9, TEXT_SIZE, EVE_OPT_CENTERY, "SPEED");
     EVE_cmd_number_burst(60, 11, 24, EVE_OPT_CENTER, gameContext.speed);
 
     //Laps
-    EVE_cmd_text_burst(EVE_HSIZE -  2, 11, 20, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, "LAP");
-    EVE_cmd_number_burst(EVE_HSIZE -  45, 11, 24, EVE_OPT_CENTER, gameContext.lap);
+    EVE_cmd_text_burst(EVE_HSIZE -  2, 11, TEXT_SIZE, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, "LAP");
+    EVE_cmd_number_burst(EVE_HSIZE -  25, 11, 24, EVE_OPT_CENTERY | EVE_OPT_RIGHTX, gameContext.lap);
 
     //Gear
     switch(gameContext.gear){
@@ -145,21 +145,21 @@ void drawMainData(gameDataContext_t gameContext){
 
     //Battery
     EVE_cmd_dl_burst(COLOR_RGB(0, 255, 0));
-    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, 30, EVE_OPT_CENTER, String(gameContext.battery).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 90, TEXT_SIZE_LARGE, EVE_OPT_CENTER, String(gameContext.battery).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( 186 + 4, EVE_VSIZE - 100, 16, EVE_OPT_CENTERY, "BATT");
 
     //Last Lap Fuel
     EVE_cmd_dl_burst(COLOR_RGB(255, 0, 0));
-    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 54, 30, EVE_OPT_CENTER, String(gameContext.lastLapFuel).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 54, TEXT_SIZE_LARGE, EVE_OPT_CENTER, String(gameContext.lastLapFuel).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
     EVE_cmd_text_burst( 186 + 4, EVE_VSIZE - 64, 16, EVE_OPT_CENTERY, "LL");
 
     //Last Lap Time
     EVE_cmd_dl_burst(COLOR_RGB(10, 200, 200));
-    EVE_cmd_text_burst( EVE_HSIZE - 104, EVE_VSIZE - 30, 30, EVE_OPT_CENTER, String(gameContext.lastLapTime).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 104, EVE_VSIZE - 30, TEXT_SIZE_LARGE, EVE_OPT_CENTER, String(gameContext.lastLapTime).c_str());
     EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_text_burst( EVE_HSIZE - 186 + 2, EVE_VSIZE - 61 + 8, 16, EVE_OPT_CENTERY, "LAST LAP");
+    EVE_cmd_text_burst( EVE_HSIZE - 186 + 4, EVE_VSIZE - 61 + 8, 16, EVE_OPT_CENTERY, "LAST LAP");
 
     //DRS
     //TODO: Draw DRS
@@ -223,26 +223,25 @@ void drawERSMode(gameDataContext_t gameContext){
     if(gameContext.ERSMode == 0){
         //Brake temperatures
         EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-        EVE_cmd_text_burst( 22 + 4, 85 + 4 + 10, 20, EVE_OPT_CENTERY, String(gameContext.frontLeftBrakeTemp).c_str());
-        EVE_cmd_text_burst( 458 - 4, 85 + 4 + 10, 20, EVE_OPT_CENTERY, String(gameContext.frontRightBrakeTemp).c_str());
-        EVE_cmd_text_burst( 22 + 4, EVE_VSIZE - 61 - 4 - 10, 20, EVE_OPT_CENTERY, String(gameContext.rearLeftBrakeTemp).c_str());
-        EVE_cmd_text_burst( 458 - 4, EVE_VSIZE - 61 - 4 - 10, 20, EVE_OPT_CENTERY, String(gameContext.rearRightBrakeTemp).c_str());
+        EVE_cmd_text_burst( 22 + 4, 85 + 4 + TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_CENTERY, String(gameContext.frontLeftBrakeTemp).c_str());
+        EVE_cmd_text_burst( 458 - 4, 85 + 4 + TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_RIGHTX | EVE_OPT_CENTERY, String(gameContext.frontRightBrakeTemp).c_str());
+        EVE_cmd_text_burst( 22 + 4, EVE_VSIZE - 61 - 4 - TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_CENTERY, String(gameContext.rearLeftBrakeTemp).c_str());
+        EVE_cmd_text_burst( 458 - 4, EVE_VSIZE - 61 - 4 - TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_RIGHTX | EVE_OPT_CENTERY, String(gameContext.rearRightBrakeTemp).c_str());
 
         //Fuel target
         EVE_cmd_dl_burst(COLOR_RGB(255, 0, 0));
-        EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 36/2, 20, EVE_OPT_CENTER, String(gameContext.fuelTarget).c_str());
+        EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - 36/2, TEXT_SIZE_LARGE, EVE_OPT_CENTER, String(gameContext.fuelTarget).c_str());
         EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-        EVE_cmd_text_burst( 186 + 4, EVE_VSIZE - 36 + 4 - 8, 16, EVE_OPT_CENTER, "F");
+        EVE_cmd_text_burst( 186 + 4, EVE_VSIZE - 36 + 8, 16, EVE_OPT_CENTERY, "F");
     }
 
     //Tyre temperatures
-    int tyre_temp_x_offset = 20;
     if(gameContext.ERSMode == 0) EVE_cmd_dl_burst(COLOR_RGB(0, 250, 154));
     else EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_text_burst( 186 - 4 - tyre_temp_x_offset, 85 + 4 + 10, 20, EVE_OPT_CENTERY, String(gameContext.frontLeftTyreTemp).c_str());
-    EVE_cmd_text_burst( EVE_HSIZE - 186 + 4, 85 + 4 + 10, 20, EVE_OPT_CENTERY, String(gameContext.frontRightTyreTemp).c_str());
-    EVE_cmd_text_burst( 186 - 4 - tyre_temp_x_offset, EVE_VSIZE - 61 - 4 - 10, 20, EVE_OPT_CENTERY, String(gameContext.rearLeftTyreTemp).c_str());
-    EVE_cmd_text_burst( EVE_HSIZE - 186 + 4, EVE_VSIZE - 61 - 4 - 10, 20, EVE_OPT_CENTERY, String(gameContext.rearRightTyreTemp).c_str());
+    EVE_cmd_text_burst( 186 - 4, 85 + 4 + TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_RIGHTX | EVE_OPT_CENTERY, String(gameContext.frontLeftTyreTemp).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 186 + 4, 85 + 4 + TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_CENTERY, String(gameContext.frontRightTyreTemp).c_str());
+    EVE_cmd_text_burst( 186 - 4, EVE_VSIZE - 61 - 4 - TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_RIGHTX | EVE_OPT_CENTERY, String(gameContext.rearLeftTyreTemp).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE - 186 + 4, EVE_VSIZE - 61 - 4 - TEXT_SIZE_LARGE / 2, TEXT_SIZE_LARGE, EVE_OPT_CENTERY, String(gameContext.rearRightTyreTemp).c_str());
 
     //ERS mode
     //Draw the background color of the ERS mode
@@ -272,7 +271,7 @@ void drawERSMode(gameDataContext_t gameContext){
     //Draw the text of the ERS mode
     if(gameContext.ERSMode == 1) EVE_cmd_dl_burst(COLOR_RGB(0, 0, 0));
     else EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - (3*36 + 36/2), 20, EVE_OPT_CENTER, ERSModeText(gameContext.ERSMode).c_str());
+    EVE_cmd_text_burst( EVE_HSIZE / 2, EVE_VSIZE - (3*36 + 36/2), TEXT_SIZE_LARGE, EVE_OPT_CENTER, ERSModeText(gameContext.ERSMode).c_str());
 
     EVE_end_cmd_burst();
 }

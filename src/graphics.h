@@ -20,6 +20,10 @@
 #define REFRESH_RATE 60.0
 #define REFRESH_RATE_MS 1000.0/REFRESH_RATE
 
+#define TEXT_SIZE 20
+#define TEXT_SIZE_SMALL 15
+#define TEXT_SIZE_LARGE 30
+
 #include <Arduino.h>
 #include "EVE.h"
 #include "gameDataInput.h"
