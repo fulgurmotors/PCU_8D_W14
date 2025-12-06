@@ -4,64 +4,55 @@
 // Independantly of the ERS mode.
 // This has nothing to do with the rev lights or the flag lights.
 
-/*
-void drawInitLogo(){
-    //EVE_memWrite_flash_buffer(0x800000, ptr, 1024);
+// Draw startup screen
+void drawStartup() {
+  EVE_start_cmd_burst();
+  EVE_cmd_dl_burst(CMD_DLSTART);
+  EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
+  EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
+  EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
 
-    EVE_cmd_flashread(0x000000, 0x000000, 4096);
+  EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 - 20, 31, EVE_OPT_CENTER,
+                     "MERCEDES-AMG");
+  EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 + 20, 29, EVE_OPT_CENTER,
+                     "PETRONAS FORMULA ONE TEAM");
 
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(CMD_DLSTART);
-    EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
-    EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
-    EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
-    EVE_end_cmd_burst();
-
-    EVE_cmd_dl( BITMAP_SOURCE(0x000000) );
-    EVE_cmd_dl( BITMAP_LAYOUT(EVE_PALETTED, 128, 32) );
-    EVE_cmd_dl( BITMAP_SIZE(EVE_NEAREST, EVE_BORDER, EVE_BORDER,32, 32) );
-    EVE_cmd_dl( DL_BEGIN | EVE_BITMAPS );
-    EVE_cmd_dl( VERTEX2F(0, 0) );
-    EVE_cmd_dl( DL_END );
-
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(DL_DISPLAY);
-    EVE_cmd_dl_burst(CMD_SWAP);
-    EVE_end_cmd_burst();
+  EVE_cmd_dl_burst(DL_DISPLAY);
+  EVE_cmd_dl_burst(CMD_SWAP);
+  EVE_end_cmd_burst();
 }
 
-void drawPopup(const char* title, const char* value){
-    EVE_start_cmd_burst();
+void drawPopup(const char *title, const char *value) {
+  EVE_start_cmd_burst();
 
-    // Draw a semi-transparent background or just a solid box
-    EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
-    EVE_cmd_dl_burst(COLOR_RGB(50, 50, 50));
-    EVE_cmd_dl_burst(VERTEX2F(100, 50));
-    EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
-    EVE_cmd_dl_burst(DL_END);
+  // Draw a semi-transparent background or just a solid box
+  EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
+  EVE_cmd_dl_burst(COLOR_RGB(50, 50, 50));
+  EVE_cmd_dl_burst(VERTEX2F(100, 50));
+  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
+  EVE_cmd_dl_burst(DL_END);
 
-    // Draw Border
-    EVE_cmd_dl_burst(DL_BEGIN | EVE_LINES);
-    EVE_cmd_dl_burst(LINE_WIDTH(3 * 16));
-    EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-    EVE_cmd_dl_burst(VERTEX2F(100, 50));
-    EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, 50));
-    EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, 50));
-    EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
-    EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
-    EVE_cmd_dl_burst(VERTEX2F(100, EVE_VSIZE - 50));
-    EVE_cmd_dl_burst(VERTEX2F(100, EVE_VSIZE - 50));
-    EVE_cmd_dl_burst(VERTEX2F(100, 50));
-    EVE_cmd_dl_burst(DL_END);
+  // Draw Border
+  EVE_cmd_dl_burst(DL_BEGIN | EVE_LINES);
+  EVE_cmd_dl_burst(LINE_WIDTH(3 * 16));
+  EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+  EVE_cmd_dl_burst(VERTEX2F(100, 50));
+  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, 50));
+  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, 50));
+  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
+  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
+  EVE_cmd_dl_burst(VERTEX2F(100, EVE_VSIZE - 50));
+  EVE_cmd_dl_burst(VERTEX2F(100, EVE_VSIZE - 50));
+  EVE_cmd_dl_burst(VERTEX2F(100, 50));
+  EVE_cmd_dl_burst(DL_END);
 
-    // Draw Text
-    EVE_cmd_text_burst(EVE_HSIZE / 2, 80, 29, EVE_OPT_CENTER, title);
-    EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 + 10, 31, EVE_OPT_CENTER,
-value);
+  // Draw Text
+  EVE_cmd_text_burst(EVE_HSIZE / 2, 80, 29, EVE_OPT_CENTER, title);
+  EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 + 10, 31, EVE_OPT_CENTER,
+                     value);
 
-    EVE_end_cmd_burst();
+  EVE_end_cmd_burst();
 }
-*/
 
 // Clear the screen and start a new display list
 void initRefreshDisplay() {
