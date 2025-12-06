@@ -2,6 +2,8 @@
 #define gameDataInput
 
 #include <Arduino.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define BUFFER_SIZE 32
 #define START_MARK '<'
@@ -32,48 +34,48 @@
 #define LAST_LAP_TIME_CODE "LLT"
 #define FUEL_TARGET_CODE "FTG"
 
-typedef struct gameDataContext_t{
-    int speed;
-    int gear;
-    int rpm;
-    int lap;
+typedef struct gameDataContext_t {
+  int speed;
+  int gear;
+  int rpm;
+  int lap;
 
-    float delta; //Delta time
-    float EstimatedLapTime; //Estimated lap time
-    float lastLapTime; //Last lap time
+  float delta;            // Delta time
+  float EstimatedLapTime; // Estimated lap time
+  float lastLapTime;      // Last lap time
 
-    int flag; //0 = green, 1 = yellow, 2 = red
+  int flag; // 0 = green, 1 = yellow, 2 = red
 
-    //Tyre temperatures
-    int frontLeftTyreTemp;
-    int frontRightTyreTemp;
-    int rearLeftTyreTemp;
-    int rearRightTyreTemp;
+  // Tyre temperatures
+  int frontLeftTyreTemp;
+  int frontRightTyreTemp;
+  int rearLeftTyreTemp;
+  int rearRightTyreTemp;
 
-    //Brake temperatures
-    int frontLeftBrakeTemp;
-    int frontRightBrakeTemp;
-    int rearLeftBrakeTemp;
-    int rearRightBrakeTemp;
+  // Brake temperatures
+  int frontLeftBrakeTemp;
+  int frontRightBrakeTemp;
+  int rearLeftBrakeTemp;
+  int rearRightBrakeTemp;
 
-    bool pitLimiter;
-    bool DRS;
-    int brakeBias;
-    
-    int ERSMode;
-    float ERSLevel;
+  bool pitLimiter;
+  bool DRS;
+  int brakeBias;
 
-    float lastLapFuel;
+  int ERSMode;
+  float ERSLevel;
 
-    int battery;
+  float lastLapFuel;
 
-    float fuelTarget;
+  int battery;
+
+  float fuelTarget;
 
 } gameDataContext_t;
 
 typedef gameDataContext_t *gameDataContext_p;
 
-void recvWithStartEndMarkers(char* receivedChars, bool* newData);
-void parseReceivedData(char* tempChars, gameDataContext_p gameData);
+void recvWithStartEndMarkers(char *receivedChars, bool *newData);
+void parseReceivedData(char *tempChars, gameDataContext_p gameData);
 
 #endif
