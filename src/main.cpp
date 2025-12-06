@@ -1,111 +1,41 @@
 #include "EVE.h"
-#include "flag_logic.h"
-#include "gameDataInput.h"
-#include "graphics.h"
-#include "popup_logic.h"
-#include "rev_lights.h"
+#include "core/SerialProtocol.h"
+#include "hardware/LedController.h"
+#include "ui/UIRenderer.h"
 #include <Arduino.h>
-#include <SPI.h>
 
-uint32_t msRefreshDisplay = 0;
+// Components
+SerialProtocol serialProtocol;
+UIRenderer uiRenderer;
+LedController ledController;
 
-CRGB leds[NUM_LEDS];
-
-PopupManager popupManager;
-FlagManager flagManager;
-
-gameDataContext_t gameContext;
-
-uint8_t ptr[4096] = {128};
-
-bool newData = false;
-char receivedChars[BUFFER_SIZE];
-char tempChars[BUFFER_SIZE];
+uint32_t lastDisplayUpdate = 0;
+#define REFRESH_RATE_MS 16 // ~60Hz
 
 void setup() {
+  Serial.begin(115200);
 
-  gameContext = {0}; // Game context initialization
+  uiRenderer.begin();
+  ledController.begin();
 
-  Serial.begin(115200); // Serial initialization
-
-  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS); // LED initialization
-
-  // Display wiring initialization
-  pinMode(EVE_CS, OUTPUT);
-  digitalWrite(EVE_CS, HIGH);
-  pinMode(EVE_PDN, OUTPUT);
-  digitalWrite(EVE_PDN, LOW);
-
-  SPI.begin(); // Sets up the SPI to run in Mode 0 and 1 MHz
-  SPI.beginTransaction(SPISettings(8UL * 1000000UL, MSBFIRST, SPI_MODE0));
-
-  // Make sure the display is correctly initialized
-  if (E_OK == EVE_init()) {
-    Serial.println("EVE init successfull");
-    delay(20);
-  } else {
-    Serial.println("EVE init failed");
-    while (1)
-      ;
-  }
-
-  // Startup Sequence
-  drawStartup();
-
-  // LED Chase
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::White;
-    FastLED.show();
-    delay(50);
-  }
-  delay(500);
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Black;
-  }
-  FastLED.show();
-  delay(500);
+  uiRenderer.showStartupSequence();
 }
 
 void loop() {
+  // 1. Process Incoming Data
+  serialProtocol.update();
 
-  // Serial communication with the game
-  recvWithStartEndMarkers(receivedChars, &newData);
-  if (newData == true) {
-    strcpy(tempChars, receivedChars);
-    parseReceivedData(tempChars, &gameContext);
-    newData = false;
-    rev_lights_rpm(leds, gameContext.gear, gameContext.rpm);
+  // 2. Update Peripherals
+  // LEDs update as fast as possible or on data change?
+  // LedController checks DataStore status or we can poll it.
+  // Putting it in the display loop or separate?
+  // FastLED disabling interrupts can mess with Serial sometimes, but on
+  // Teensy 4.1 it's usually fine. Let's update LEDs every loop or throttle it.
+  ledController.update();
 
-    // Check for popup triggers
-    popupManager.update(gameContext);
-  }
-
-  // Display refresh
-  if (millis() > msRefreshDisplay + REFRESH_RATE_MS) {
-
-    /*
-    //Print FPS and delta between frames
-    uint32_t deltaTime = millis() - msRefreshDisplay;
-    drawFPS(deltaTime);
-    */
-
-    msRefreshDisplay = millis(); // Refresh time update
-
-    initRefreshDisplay(); // Display cleaning and new display list
-
-    drawMainCommon();          // Draw common elements
-    drawMainData(gameContext); // Draw common data
-    drawERSMode(gameContext);  // Draw ERS mode
-
-    // Handle flags (LEDs and drawing)
-    flagManager.update(gameContext, leds);
-
-    // Draw Popup if active
-    popupManager.draw();
-
-    EVE_start_cmd_burst();
-    EVE_cmd_dl_burst(DL_DISPLAY); // Mark the end of the display-list
-    EVE_cmd_dl_burst(CMD_SWAP);   // Make this list active
-    EVE_end_cmd_burst();
+  // 3. Update Display
+  if (millis() - lastDisplayUpdate > REFRESH_RATE_MS) {
+    lastDisplayUpdate = millis();
+    uiRenderer.draw();
   }
 }
