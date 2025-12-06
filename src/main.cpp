@@ -1,26 +1,18 @@
 #include "EVE.h"
+#include "flag_logic.h"
 #include "gameDataInput.h"
 #include "graphics.h"
+#include "popup_logic.h"
 #include "rev_lights.h"
 #include <Arduino.h>
 #include <SPI.h>
 
-int compteur = 0;
-uint32_t ms = 0;
 uint32_t msRefreshDisplay = 0;
 
 CRGB leds[NUM_LEDS];
 
-bool flagBlink = false;
-
-// Popup variables
-bool popupActive = false;
-uint32_t popupStartTime = 0;
-char popupTitle[32];
-char popupValue[32];
-int prevBrakeBias = -1; // Initialize with invalid value to avoid startup popup
-                        // if possible, or handle in setup
-float prevFuelTarget = -1.0;
+PopupManager popupManager;
+FlagManager flagManager;
 
 gameDataContext_t gameContext;
 
@@ -33,8 +25,6 @@ char tempChars[BUFFER_SIZE];
 void setup() {
 
   gameContext = {0}; // Game context initialization
-  prevBrakeBias = gameContext.brakeBias;
-  prevFuelTarget = gameContext.fuelTarget;
 
   Serial.begin(115200); // Serial initialization
 
@@ -86,25 +76,8 @@ void loop() {
     newData = false;
     rev_lights_rpm(leds, gameContext.gear, gameContext.rpm);
 
-    // Check for changes for popup
-    if (gameContext.brakeBias != prevBrakeBias) {
-      popupActive = true;
-      popupStartTime = millis();
-      strcpy(popupTitle, "BRAKE BIAS");
-      snprintf(popupValue, sizeof(popupValue), "%d", gameContext.brakeBias);
-      prevBrakeBias = gameContext.brakeBias;
-    }
-
-    // Check for fuel target changes
-    // Note: comparing floats directly is risky, but for a setting that changes
-    // in steps it might be ok. Better to check if diff is significant.
-    if (fabsf(gameContext.fuelTarget - prevFuelTarget) > 0.01) {
-      popupActive = true;
-      popupStartTime = millis();
-      strcpy(popupTitle, "FUEL TARGET");
-      snprintf(popupValue, sizeof(popupValue), "%.2f", gameContext.fuelTarget);
-      prevFuelTarget = gameContext.fuelTarget;
-    }
+    // Check for popup triggers
+    popupManager.update(gameContext);
   }
 
   // Display refresh
@@ -124,50 +97,11 @@ void loop() {
     drawMainData(gameContext); // Draw common data
     drawERSMode(gameContext);  // Draw ERS mode
 
-    switch (gameContext.flag) {
-
-    case 0: // No flag
-      flag_lights(leds, CRGB(0, 0, 0));
-      FastLED.show();
-      break;
-    case 1: // Yellow flag
-      if (millis() > ms + 1000) {
-        ms = millis();
-        if (flagBlink) {
-          flagBlink = false;
-          flag_lights(leds, yellow_flag_light);
-        } else {
-          flagBlink = true;
-          flag_lights(leds, CRGB(0, 0, 0));
-        }
-        FastLED.show();
-      }
-      drawYellowFlag(flagBlink);
-      break;
-    case 2: // Red flag
-      if (millis() > ms + 1000) {
-        ms = millis();
-        if (flagBlink) {
-          flagBlink = false;
-          flag_lights(leds, red_flag_light);
-        } else {
-          flagBlink = true;
-          flag_lights(leds, CRGB(0, 0, 0));
-        }
-        FastLED.show();
-      }
-      drawRedFlag(flagBlink);
-      break;
-    }
+    // Handle flags (LEDs and drawing)
+    flagManager.update(gameContext, leds);
 
     // Draw Popup if active
-    if (popupActive) {
-      if (millis() - popupStartTime < 2000) { // Show for 2 seconds
-        drawPopup(popupTitle, popupValue);
-      } else {
-        popupActive = false;
-      }
-    }
+    popupManager.draw();
 
     EVE_start_cmd_burst();
     EVE_cmd_dl_burst(DL_DISPLAY); // Mark the end of the display-list
