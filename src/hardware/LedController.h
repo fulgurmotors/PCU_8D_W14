@@ -1,6 +1,7 @@
 #ifndef LED_CONTROLLER_H
 #define LED_CONTROLLER_H
 
+#include "../core/ConfigManager.h"
 #include "../core/DataStore.h"
 #include <FastLED.h>
 
@@ -18,6 +19,7 @@ private:
   CRGB leds[NUM_LEDS];
   uint32_t lastBlinkTime;
   bool blinkState;
+  ConfigManager configManager;
 
   void updateRevLights(int rpm, int gear);
   void updateFlagLights(int flag);

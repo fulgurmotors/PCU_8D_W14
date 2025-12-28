@@ -1,30 +1,17 @@
 #include "UIRenderer.h"
-#include "EVE.h" // Assuming global path or adjusted include
+#include "EVE.h"
 #include <SPI.h>
 
 #define EVE_CS 10
 #define EVE_PDN 8
 
-// Colors (from original graphics.h)
-#define BLACK 0x000000UL
-#define WHITE 0xffffffUL
-#define RED 0xff0000UL
-#define ORANGE 0xffa500UL
-#define GREEN 0x00ff00UL
-#define BLUE 0x0000ffUL
-#define YELLOW 0xffff00UL
-#define MAGENTA 0xff00ffUL
-#define TEAL 0x00ffcc
-
-#define TEXT_SIZE 20
-#define TEXT_SIZE_LARGE 30
-
+// EVE Screen size
 #define EVE_HSIZE 480
 #define EVE_VSIZE 272
 
 UIRenderer::UIRenderer()
-    : lastDrawTime(0), popupActive(false), prevBrakeBias(-1),
-      prevFuelTarget(-1) {}
+    : lastDrawTime(0), currentPageId(0), activePopup(nullptr),
+      popupStartTime(0), prevBrakeBias(-1), prevFuelTarget(-1) {}
 
 void UIRenderer::begin() {
   pinMode(EVE_CS, OUTPUT);
@@ -40,23 +27,37 @@ void UIRenderer::begin() {
   } else {
     Serial.println("EVE init failed");
   }
+
+  // Load config
+  if (!configManager.loadConfig("/config.json")) {
+    Serial.println("Failed to load /config.json, using defaults or empty");
+  } else {
+    Serial.print("Loaded Config: ");
+    Serial.println(configManager.getDashboardName());
+  }
 }
 
 void UIRenderer::showStartupSequence() {
   EVE_start_cmd_burst();
   EVE_cmd_dl_burst(CMD_DLSTART);
-  EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
+  EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | 0x000000);
   EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
   EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
+
+  String title = configManager.getDashboardName();
+  if (title == "Unknown")
+    title = "MERCEDES-AMG";
+
   EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 - 20, 31, EVE_OPT_CENTER,
-                     "MERCEDES-AMG");
+                     title.c_str());
   EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 + 20, 29, EVE_OPT_CENTER,
-                     "PETRONAS F1");
+                     configManager.getVersion().c_str());
+
   EVE_cmd_dl_burst(DL_DISPLAY);
   EVE_cmd_dl_burst(CMD_SWAP);
   EVE_end_cmd_burst();
 
-  delay(2000); // Wait 2s
+  delay(2000);
 }
 
 void UIRenderer::draw() {
@@ -68,12 +69,22 @@ void UIRenderer::draw() {
   if (data.flag != 0) {
     drawFlag(data.flag);
   } else {
-    drawCommonElements();
-    drawData(data);
+    // Draw Current Page
+    const Page *page = configManager.getPage(currentPageId);
+    if (!page && !configManager.getPages().empty()) {
+      // Fallback to first page if current ID invalid
+      page = &configManager.getPages()[0];
+    }
+
+    if (page) {
+      drawPage(page, data);
+    }
+
+    // Draw ERS overlay if needed (or move to Config)
     drawERS(data);
   }
 
-  if (popupActive) {
+  if (activePopup) {
     drawPopup();
   }
 
@@ -86,58 +97,72 @@ void UIRenderer::draw() {
 void UIRenderer::initDisplayList() {
   EVE_start_cmd_burst();
   EVE_cmd_dl_burst(CMD_DLSTART);
-  EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | BLACK);
+  EVE_cmd_dl_burst(DL_CLEAR_COLOR_RGB | 0x000000);
   EVE_cmd_dl_burst(DL_CLEAR | CLR_COL | CLR_STN | CLR_TAG);
   EVE_cmd_dl_burst(DL_VERTEX_FORMAT);
   EVE_end_cmd_burst();
 }
 
-void UIRenderer::drawCommonElements() {
-  // (Copied from original drawMainCommon and optimized)
+void UIRenderer::drawPage(const Page *page, const TelemetryPacket &data) {
   EVE_start_cmd_burst();
-  EVE_cmd_dl_burst(DL_BEGIN | EVE_LINES);
-  EVE_cmd_dl_burst(LINE_WIDTH(16));
-  EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
-
-  // Simplified lines for brevity in this rewrite, but structurally correct
-  EVE_cmd_dl_burst(VERTEX2F(0, 24));
-  EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE, 24)); // Top
-  // Add other lines here...
-  EVE_cmd_dl_burst(DL_END);
+  for (const auto &elem : page->elements) {
+    drawElement(elem, data);
+  }
   EVE_end_cmd_burst();
 }
 
-void UIRenderer::drawData(const TelemetryPacket &data) {
-  char buffer[32];
-  EVE_start_cmd_burst();
-  EVE_cmd_dl_burst(COLOR_RGB(255, 255, 255));
+void UIRenderer::drawElement(const UIElement &elem,
+                             const TelemetryPacket &data) {
+  EVE_cmd_dl_burst(COLOR_RGB((elem.color >> 16) & 0xFF,
+                             (elem.color >> 8) & 0xFF, elem.color & 0xFF));
 
-  // Speed
-  EVE_cmd_number_burst(60, 11, 24, EVE_OPT_CENTER, data.speed);
+  if (elem.type == UI_ELEMENT_LINE) {
+    EVE_cmd_dl_burst(DL_BEGIN | EVE_LINES);
+    EVE_cmd_dl_burst(LINE_WIDTH(elem.width * 16));
+    EVE_cmd_dl_burst(VERTEX2F(elem.x, elem.y));
+    EVE_cmd_dl_burst(VERTEX2F(elem.x2, elem.y2));
+    EVE_cmd_dl_burst(DL_END);
+  } else if (elem.type == UI_ELEMENT_RECT) {
+    EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
+    EVE_cmd_dl_burst(LINE_WIDTH(elem.width * 16));
+    EVE_cmd_dl_burst(VERTEX2F(elem.x, elem.y));
+    EVE_cmd_dl_burst(VERTEX2F(elem.x2, elem.y2));
+    EVE_cmd_dl_burst(DL_END);
+  } else if (elem.type == UI_ELEMENT_TEXT) {
+    EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align,
+                       elem.text.c_str());
+  } else if (elem.type == UI_ELEMENT_NUMBER) {
+    char buffer[32];
+    if (elem.dataSource == "speed") {
+      EVE_cmd_number_burst(elem.x, elem.y, elem.font, elem.align,
+                           (int)data.speed);
+    } else if (elem.dataSource == "gear") {
+      if (data.gear == 0)
+        EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align, "N");
+      else if (data.gear == -1)
+        EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align, "R");
+      else
+        EVE_cmd_number_burst(elem.x, elem.y, elem.font, elem.align,
+                             (int)data.gear);
 
-  // Gear
-  if (data.gear == 0)
-    EVE_cmd_text_burst(EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, "N");
-  else if (data.gear == -1)
-    EVE_cmd_text_burst(EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, "R");
-  else
-    EVE_cmd_number_burst(EVE_HSIZE / 2, 76, 31, EVE_OPT_CENTER, data.gear);
-
-  // Delta
-  EVE_cmd_dl_burst(COLOR_RGB(200, 0, 200));
-  secondsToTime(data.delta, buffer);
-  EVE_cmd_text_burst(186 - 4, 54, 31, EVE_OPT_RIGHTX | EVE_OPT_CENTERY, buffer);
-
-  // Brake Bias
-  EVE_cmd_dl_burst(COLOR_RGB(150, 120, 10));
-  snprintf(buffer, 32, "%.1f", data.brakeBias);
-  EVE_cmd_text_burst(EVE_HSIZE - 104, 54, 31, EVE_OPT_CENTER, buffer);
-
-  EVE_end_cmd_burst();
+    } else if (elem.dataSource == "rpm") {
+      EVE_cmd_number_burst(elem.x, elem.y, elem.font, elem.align,
+                           (int)data.rpm);
+    } else if (elem.dataSource == "delta") {
+      secondsToTime(data.delta, buffer);
+      EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align, buffer);
+    } else if (elem.dataSource == "brakeBias") {
+      snprintf(buffer, 32, elem.format.c_str(), data.brakeBias);
+      EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align, buffer);
+    } else if (elem.dataSource == "fuelTarget") {
+      snprintf(buffer, 32, elem.format.c_str(), data.fuelTarget);
+      EVE_cmd_text_burst(elem.x, elem.y, elem.font, elem.align, buffer);
+    }
+  }
 }
 
 void UIRenderer::drawERS(const TelemetryPacket &data) {
-  // Implement ERS drawing
+  // Can also be moved to config if we define specific ERS elements
 }
 
 void UIRenderer::drawFlag(int flag) {
@@ -159,38 +184,51 @@ void UIRenderer::drawFlag(int flag) {
 }
 
 void UIRenderer::checkPopupTriggers(const TelemetryPacket &data) {
+  bool triggered = false;
+  String triggerName = "";
+
   if (data.brakeBias != prevBrakeBias && prevBrakeBias != -1) {
-    popupActive = true;
-    popupStartTime = millis();
-    strcpy(popupTitle, "BRAKE BIAS");
-    snprintf(popupValue, 32, "%.1f", data.brakeBias);
+    triggerName = "brakeBias";
+    triggered = true;
   }
   prevBrakeBias = data.brakeBias;
 
   if (fabs(data.fuelTarget - prevFuelTarget) > 0.01 && prevFuelTarget != -1) {
-    popupActive = true;
-    popupStartTime = millis();
-    strcpy(popupTitle, "FUEL TARGET");
-    snprintf(popupValue, 32, "%.2f", data.fuelTarget);
+    triggerName = "fuelTarget";
+    triggered = true;
   }
   prevFuelTarget = data.fuelTarget;
 
-  if (popupActive && millis() - popupStartTime > 2000) {
-    popupActive = false;
+  if (triggered) {
+    const Popup *popup = configManager.getPopup(triggerName);
+    if (popup) {
+      activePopup = popup;
+      popupStartTime = millis();
+    }
+  }
+
+  if (activePopup && millis() - popupStartTime > activePopup->duration) {
+    activePopup = nullptr;
   }
 }
 
 void UIRenderer::drawPopup() {
+  if (!activePopup)
+    return;
+
+  // Draw popup background (generic dark box)
   EVE_start_cmd_burst();
   EVE_cmd_dl_burst(DL_BEGIN | EVE_RECTS);
   EVE_cmd_dl_burst(COLOR_RGB(50, 50, 50));
   EVE_cmd_dl_burst(VERTEX2F(100, 50));
   EVE_cmd_dl_burst(VERTEX2F(EVE_HSIZE - 100, EVE_VSIZE - 50));
   EVE_cmd_dl_burst(DL_END);
+  EVE_end_cmd_burst();
 
-  EVE_cmd_text_burst(EVE_HSIZE / 2, 80, 29, EVE_OPT_CENTER, popupTitle);
-  EVE_cmd_text_burst(EVE_HSIZE / 2, EVE_VSIZE / 2 + 10, 31, EVE_OPT_CENTER,
-                     popupValue);
+  EVE_start_cmd_burst();
+  for (const auto &elem : activePopup->elements) {
+    drawElement(elem, DataStore::getInstance().getTelemetry());
+  }
   EVE_end_cmd_burst();
 }
 
@@ -204,7 +242,4 @@ void UIRenderer::secondsToTime(float seconds, char *buffer) {
   snprintf(buffer, 32, "%c%d.%03d", sign, sec, ms);
 }
 
-const char *UIRenderer::ersModeText(int mode) {
-  // Implement
-  return "";
-}
+const char *UIRenderer::ersModeText(int mode) { return ""; }
